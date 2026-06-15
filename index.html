@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도박 잔혹사 시뮬레이터 v4.1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>🎰 가상 자산 파멸 시뮬레이터</h1>
+    <p style="color:#aaa; text-align:center; margin-bottom: 20px;">각 탭을 이동하여 게임을 즐기세요. 빚을 지면 무서운 일이 일어납니다.</p>
+
+    <div class="navbar" id="main-nav">
+        <div class="nav-tab active" onclick="switchPage('slot')">777 슬롯</div>
+        <div class="nav-tab" onclick="switchPage('mine')">광물 채굴</div>
+        <div class="nav-tab" onclick="switchPage('race')">조작 경마</div>
+        <div class="nav-tab" style="color:var(--neon-orange);" onclick="switchPage('scratch')">🎟️ 즉석 복권</div>
+        <div class="nav-tab" onclick="switchPage('bank')">사채 은행</div>
+        <div class="nav-tab" style="color:var(--mine-brown);" onclick="switchPage('slave')">⛏️ 지옥 광산</div>
+    </div>
+
+    <div class="dashboard">
+        <div class="card">
+            <h3>누적 슬롯 잭팟</h3>
+            <p id="jackpot-display">10,000</p>
+        </div>
+        <div class="card">
+            <h3>보유 가상 포인트</h3>
+            <p id="my-points-display">50,000</p>
+        </div>
+        <div class="card" style="border-color: rgba(255,0,0,0.3);">
+            <h3>갚아야 할 대출금 (이자 10%)</h3>
+            <p id="debt-display">0</p>
+            <div class="timer-text" id="loan-timer-display"></div>
+        </div>
+    </div>
+
+    <div class="page-content active" id="page-slot">
+        <div class="section-box">
+            <h2>777 네온 슬롯머신</h2>
+            <div class="slot-window">
+                <div class="reel" id="reel1">?</div>
+                <div class="reel" id="reel2">?</div>
+                <div class="reel" id="reel3">?</div>
+            </div>
+            <div class="control-group">
+                <input type="number" id="bet-input" value="1000" min="10" step="100" oninput="updateSlotProbability()">
+                <button class="action-btn slot-btn" id="slot-button" onclick="spinSlot()">SPIN!</button>
+            </div>
+            <div class="prob-text" id="slot-prob-display">당첨 확률: 0.10% (최대 1.00%)</div>
+            <div class="message-box" id="slot-message">포인트를 베팅하고 스핀을 돌리세요.</div>
+        </div>
+    </div>
+
+    <div class="page-content" id="page-mine">
+        <div class="section-box">
+            <h2>⛏️ 친환경 자산 채굴장</h2>
+            <div class="mining-grid">
+                <button class="mining-btn active" id="tool-100" onclick="selectTool(100)"><span>🐹</span>두더지<br><small>100P</small></button>
+                <button class="mining-btn" id="tool-200" onclick="selectTool(200)"><span>🧹</span>삽<br><small>200P</small></button>
+                <button class="mining-btn" id="tool-300" onclick="selectTool(300)"><span>⛏️</span>곡괭이<br><small>300P</small></button>
+                <button class="mining-btn" id="tool-500" onclick="selectTool(500)"><span>⚙️</span>드릴<br><small>500P</small></button>
+                <button class="mining-btn" id="tool-1000" onclick="selectTool(1000)"><span>🤠</span>광부<br><small>1000P</small></button>
+            </div>
+            <button class="action-btn mine-start-btn" id="mine-button" onclick="startMining()">채굴 시작</button>
+            <div class="message-box" id="mining-message">작업 도구를 선택하고 채굴을 시작하세요.</div>
+        </div>
+    </div>
+
+    <div class="page-content" id="page-race">
+        <div class="section-box">
+            <h2>🐎 승부조작 어둠의 경마장</h2>
+            <table class="horse-table">
+                <thead>
+                    <tr><th>마번</th><th>이름</th><th>기댓값 확률</th><th>배당률</th><th>선택</th></tr>
+                </thead>
+                <tbody id="horse-table-body"></tbody>
+            </table>
+            <div class="race-track">
+                <div class="finish-line"></div>
+                <div class="lane"><div class="horse-sprite" id="horse-0">🐎</div></div>
+                <div class="lane"><div class="horse-sprite" id="horse-1">🐎</div></div>
+                <div class="lane"><div class="horse-sprite" id="horse-2">🐎</div></div>
+                <div class="lane"><div class="horse-sprite" id="horse-3">🐎</div></div>
+                <div class="lane"><div class="horse-sprite" id="horse-4">🐎</div></div>
+            </div>
+            <div class="control-group">
+                <input type="number" id="race-bet-input" value="1000" min="10" step="100">
+                <button class="action-btn race-start-btn" id="race-button" onclick="startRace()">레이스 시작</button>
+            </div>
+            <div class="message-box" id="race-message">베팅할 말과 금액을 선택한 후 레이스를 시작하세요.</div>
+        </div>
+    </div>
+
+    <div class="page-content" id="page-scratch">
+        <div class="section-box">
+            <h2>🎟️ 스크래처 복권 (1회 1,000P)</h2>
+            <p style="color:#aaa; font-size:0.9rem; margin-top:-5px;">6개의 칸을 마우스로 긁어 당첨 번호와 일치하는 행운을 잡으세요!</p>
+            
+            <div class="scratch-ticket">
+                <div class="scratch-title">🍀 LUCKY SCRATCH 복권 🍀</div>
+                
+                <div class="winning-numbers-box">
+                    <div class="winning-title">▼ 당첨 번호 (1 ~ 45) ▼</div>
+                    <div id="winning-balls-container">
+                        <span class="number-ball">?</span><span class="number-ball">?</span><span class="number-ball">?</span>
+                        <span class="number-ball">?</span><span class="number-ball">?</span><span class="number-ball">?</span>
+                    </div>
+                </div>
+
+                <div class="scratch-grid" id="scratch-grid-container"></div>
+            </div>
+
+            <button class="action-btn scratch-start-btn" id="scratch-buy-btn" onclick="buyScratchTicket()">새 복권 구매하기 (1,000P)</button>
+            
+            <table class="scratch-info-table">
+                <tr style="color:var(--neon-orange); font-weight:bold;"><td>일치 개수</td><td>3개 일치</td><td>4개 일치</td><td>5개 일치</td><td>6개 일치</td></tr>
+                <tr><td>당첨금</td><td>2,000 P</td><td>5,000 P</td><td>500,000 P</td><td>900,000 P</td></tr>
+            </table>
+            <div class="message-box" id="scratch-message">복권을 구매한 후 은색 덮개를 클릭해 긁어보세요! (최소 1개 적중 보정 완료!)</div>
+        </div>
+    </div>
+
+    <div class="page-content" id="page-bank">
+        <div class="section-box">
+            <h2>🏦 일수 대출 야수 은행</h2>
+            <p style="color:#ff5555; font-size:0.95rem; margin-bottom: 25px;">
+                ※ 경고: 대출 시 10%의 이자가 즉시 가산됩니다. <br>
+                <strong>정확히 1분(60초) 안에 상환하지 못할 시</strong>, 계좌에서 자동 출금되며 <br>
+                잔액이 부족할 경우 즉시 신용불량 처리되어 지옥 광산으로 강제 송환됩니다.
+            </p>
+            <div class="control-group">
+                <label>대출 신청금: </label>
+                <input type="number" id="loan-amount-input" value="5000" min="100" max="10000" step="100">
+                <button class="action-btn bank-btn" id="loan-btn" onclick="takeLoan()">대출받기</button>
+            </div>
+            <hr style="border-color:#333; margin: 20px 0;">
+            <div class="control-group">
+                <button class="action-btn" style="background:#222; border:1px solid #ff3333; color:#ff3333;" id="repay-btn" onclick="repayLoan()">빚 전액 상환하기</button>
+            </div>
+            <div class="message-box" id="bank-message">신중하게 선택하십시오. 대출은 파멸의 지름길입니다.</div>
+        </div>
+    </div>
+
+    <div class="page-content" id="page-slave">
+        <div class="section-box">
+            <h2 style="color:var(--mine-brown)">⛏️ 지옥의 막장 광산</h2>
+            <div class="slave-status" id="slave-notice">현재 상태: 자유인 (체험 입산 가능)</div>
+            <p style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">돌을 마우스로 클릭할 때마다 노동 대가가 정산됩니다.</p>
+            <p style="color:#ffcc00; font-size:0.85rem; margin:0;">※ 주의: 연속 채굴 시 근육통(과열) 게이지가 상승합니다. 채굴을 잠시 쉬면 자연 감소합니다.</p>
+
+            <div class="fatigue-container">
+                <div class="fatigue-bar" id="fatigue-bar-core"></div>
+                <div class="fatigue-text" id="fatigue-bar-text">근육통 임계치: 0%</div>
+            </div>
+            
+            <button class="labor-btn" onclick="crackRock()">CLICK!<br>⛏️</button>
+            
+            <div class="control-group" id="voluntary-box" style="margin-top:20px;">
+                <button class="action-btn" style="background:#443322; color:#ffcc00;" id="escape-mine-btn" onclick="exitMineVoluntarily()">광산 탈출하기</button>
+            </div>
+            <div class="message-box" id="slave-message">돌을 깨서 정직하게 돈을 버는 맛을 느껴보십시오.</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
